@@ -3,8 +3,8 @@ provider "aws" {
 }
 
 locals {
-  lambda_name = "calculate-weekdays"
-  source_path = "../src/CalculateWeekdaysFunction"
+  lambda_name         = "calculate-weekdays"
+  source_path         = "../src/CalculateWeekdaysFunction"
   lambda_package_name = "CalculateWeekdaysFunction-${formatdate("YYYYMMDD", timestamp())}"
 }
 
@@ -37,23 +37,28 @@ resource "aws_security_group" "this" {
   name   = "${module.vpc.name}-sg"
 
   ingress {
+    protocol  = "tcp"
+    from_port = 55555
+    to_port   = 55555
     self      = true
-    from_port = 0
-    to_port   = 0
-    protocol  = "-1"
+    description = "allow tcp connection on port 55555"
   }
 
   egress {
     from_port   = 0
     to_port     = 0
     protocol    = "-1"
-    cidr_blocks = ["0.0.0.0/0"]
+    cidr_blocks = [ "0.0.0.0/0" ]
+    description = "allow from all"
   }
 
   lifecycle {
     create_before_destroy = true
   }
+
+  description = "security group for vpc"
 }
+
 
 ####################################################
 # Package dotnet project
@@ -110,4 +115,3 @@ module "vpc" {
   azs             = ["${var.aws_region}a", "${var.aws_region}b", "${var.aws_region}c"]
   private_subnets = var.private_subnets
 }
-
